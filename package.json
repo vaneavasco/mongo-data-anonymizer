@@ -1,0 +1,48 @@
+{
+  "name": "mongo-data-anonymizer",
+  "version": "1.0.0",
+  "description": "Anonymize specified fields in MongoDB collections and copy them to a target database.",
+  "main": "dist/main.js",
+  "bin": {
+    "mongo-data-anonymizer": "dist/cli.js"
+  },
+  "scripts": {
+    "start": "ts-node src/main.ts",
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint 'src/**/*.{js,ts}'",
+    "format": "prettier --write 'src/**/*.{js,ts}'",
+    "run": "node dist/cli.js",
+    "run:dev": "ts-node src/cli.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.15",
+    "faker": "^5.0.0",
+    "mongodb": "^4.0.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@types/bunyan": "^1.8.11",
+    "@types/faker": "^6.6.9",
+    "@types/jest": "^26.0.0",
+    "@types/node": "^16.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.0.0",
+    "@typescript-eslint/parser": "^4.0.0",
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^26.0.0",
+    "prettier": "^2.0.0",
+    "ts-jest": "^26.0.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.0.0"
+  },
+  "keywords": [
+    "mongodb",
+    "anonymizer"
+  ],
+  "author": "vanea vasco",
+  "license": "MIT"
+}
