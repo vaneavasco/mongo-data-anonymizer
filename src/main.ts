@@ -1,5 +1,6 @@
 import { Database } from './anonymization/database';
 import { Anonymize } from './anonymization/anonymize';
+import { getFieldList } from './utils/field-utils';
 
 const log = require('bunyan').createLogger({ name: "Main" });
 
@@ -7,11 +8,12 @@ interface Config {
     sourceUri: string;
     targetUri: string;
     fieldList: string[];
-    fakerLocale?: string;
     ignoreCollections: string[];
     collectionList: string[];
     batchSize: number;
 }
+
+const defaultFields = ['email', 'name', 'description', 'address', 'city', 'country', 'phone', 'comment', 'birthdate', 'firstname', 'lastname', 'fullname'];
 
 export async function main() {
     const config: Config = parseArgs(process.argv);
@@ -60,20 +62,18 @@ function parseArgs(argv: string[]): Config {
     const yargs = require('yargs/yargs');
     const { hideBin } = require('yargs/helpers');
     const args = yargs(hideBin(argv))
-        .option('sourceUri', { type: 'string', demandOption: true, alias: 's' })
-        .option('targetUri', { type: 'string', demandOption: true, alias: 't' })
-        .option('fieldList', { type: 'string', demandOption: true, alias: 'f', default: 'email,name,description,address,city,country,phone,comment,birthdate'})
-        .option('fakerLocale', { type: 'string', alias: 'l', default: 'en'})
-        .option('collectionList', { type: 'string', alias: 'c', default: '' })
-        .option('ignoreCollections', { type: 'string', alias: 'i', default: '' })
-        .option('batchSize', { type: 'number', alias: 'b', default: 1000 })
+        .option('sourceUri', { type: 'string', demandOption: true})
+        .option('targetUri', { type: 'string', demandOption: true })
+        .option('fieldList', { type: 'string', demandOption: true, default: defaultFields.join(',') })
+        .option('collectionList', { type: 'string', default: '' })
+        .option('ignoreCollections', { type: 'string', default: '' })
+        .option('batchSize', { type: 'number', default: 1000 })
         .argv;
 
     return {
         sourceUri: args.sourceUri,
         targetUri: args.targetUri,
-        fieldList: args.fieldList.split(','),
-        fakerLocale: args.fakerLocale,
+        fieldList: getFieldList(args.fieldList, defaultFields),
         ignoreCollections: args.ignoreCollections.split(','),
         collectionList: args.collectionList.split(','),
         batchSize: args.batchSize,

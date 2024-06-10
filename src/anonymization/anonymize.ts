@@ -1,10 +1,6 @@
 import { faker } from '@faker-js/faker';
 
 export class Anonymize {
-    constructor() {
-        // Set locale if needed
-        // faker.locale = 'en';
-    }
 
     anonymizeBatch(batch: any[], collectionName: string, list: string[]): any[] {
         const keysToAnonymize = this.getKeysToAnonymize(list, collectionName);

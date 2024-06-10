@@ -6,7 +6,13 @@ on:
       - 'v*.*.*'
 
 jobs:
+  unit-tests:
+    name: Unit tests
+    uses: ./.github/workflows/test.yml
+
   release:
+    name: Release package
+    needs: [unit-tests]
     runs-on: ubuntu-latest
 
     steps:

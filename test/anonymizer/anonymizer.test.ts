@@ -112,7 +112,7 @@ describe('Anonymize', () => {
             expect(() => {
                 // @ts-ignore: private method
                 anonymize.applyReplacement('[invalid-json');
-            }).toThrowError('Failed to parse replacement JSON: Unexpected token \'i\', "[invalid-json" is not valid JSON');
+            }).toThrowError( 'Failed to parse replacement JSON: Unexpected token i in JSON at position 1');
         });
     });
 
