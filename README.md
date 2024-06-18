@@ -30,6 +30,7 @@ Here are the available options:
 - `--collectionList`: (Optional) A comma-separated list of collections to anonymize. If not provided, all collections will be anonymized.
 - `--ignoreCollections`: (Optional) A comma-separated list of collections to ignore during the anonymization process.
 - `--batchSize`: (Optional) The number of documents to process at a time. Defaults to `1000`.
+- `--copyNonAnonymized`: (Optional) If set, non-anonymized collections will be copied as-is to the target database. By default, non-anonymized collections are not copied.
 
 ## Note
 
