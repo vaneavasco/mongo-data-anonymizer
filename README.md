@@ -26,7 +26,8 @@ Here are the available options:
 
 - `--sourceUri`: The MongoDB URI of the source database.
 - `--targetUri`: The MongoDB URI of the target database.
-- `--fieldList`: A comma-separated list of fields to anonymize. You can use the `+` or `-` modifiers to add or remove fields from the default list respectively. For example, `+age` will add `age` to the default fields, and `-email` will remove `email` from the default fields.
+- ```markdown
+- `--fieldList`: A comma-separated list of fields to anonymize. You can also use the `+` or `-` modifiers to add or remove fields from the default list respectively. For example, `+age` will add `age` to the default fields, and `-email` will remove `email` from the default fields. The default fields are: `email`, `name`, `description`, `address`, `city`, `country`, `phone`, `comment`, `birthdate`, `firstname`, `lastname`, `fullname`.
 - `--collectionList`: (Optional) A comma-separated list of collections to anonymize. If not provided, all collections will be anonymized.
 - `--ignoreCollections`: (Optional) A comma-separated list of collections to ignore during the anonymization process.
 - `--batchSize`: (Optional) The number of documents to process at a time. Defaults to `1000`.
