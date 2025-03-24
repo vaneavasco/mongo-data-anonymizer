@@ -17,7 +17,7 @@ export class Anonymize {
 
   private getKeysToAnonymize(list: string[]): Field[] {
     return list.map((item) => ({
-      field: item.replace(/:(?:.*)$/, '').toLowerCase(),
+      field: item,
       replacement: item.includes(':') ? item.replace(/^(?:.*):/, '') : null,
     }));
   }
@@ -96,7 +96,9 @@ export class Anonymize {
     return fakerMethod();
   }
 
-  private getFakerValueForField(key: string) {
+  private getFakerValueForField(_key: string) {
+    const key = _key.toLowerCase();
+
     if (key.includes('email')) return faker.internet.email().toLowerCase();
     if (key.includes('firstname')) return faker.person.firstName();
     if (key.includes('lastname')) return faker.person.lastName();
