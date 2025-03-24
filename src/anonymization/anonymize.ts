@@ -1,70 +1,42 @@
 import { faker } from '@faker-js/faker';
+import { set } from 'object-path';
+
+type Field = {
+  field: string;
+  replacement: string | null | undefined;
+};
 
 export class Anonymize {
-  anonymizeBatch(batch: any[], collectionName: string, list: string[]): any[] {
-    const keysToAnonymize = this.getKeysToAnonymize(list, collectionName);
-    const fieldsToAnonymize = keysToAnonymize.map((item) => item.field);
+  anonymizeBatch(batch: any[], list: string[]): any[] {
+    const keysToAnonymize = this.getKeysToAnonymize(list);
 
     return batch.map((document) =>
-      this.anonymizeDocument(document, fieldsToAnonymize, keysToAnonymize),
+      this.anonymizeDocument(document, keysToAnonymize),
     );
   }
 
-  private getKeysToAnonymize(list: string[], collectionName: string) {
-    return list
-      .filter(
-        (item) =>
-          !item.match(/^[a-z_]+\./gi) || item.startsWith(`${collectionName}.`),
-      )
-      .map((item) => ({
-        field: item
-          .replace(`${collectionName}.`, '')
-          .replace(/:(?:.*)$/, '')
-          .toLowerCase(),
-        replacement: item.includes(':') ? item.replace(/^(?:.*):/, '') : null,
-      }));
+  private getKeysToAnonymize(list: string[]): Field[] {
+    return list.map((item) => ({
+      field: item.replace(/:(?:.*)$/, '').toLowerCase(),
+      replacement: item.includes(':') ? item.replace(/^(?:.*):/, '') : null,
+    }));
   }
 
-  private anonymizeDocument(
-    document: any,
-    fieldsToAnonymize: string[],
-    keysToAnonymize: any[],
-  ) {
-    const anonymizedDocument: Record<string, any> = {};
+  private anonymizeDocument(document: any, keysToAnonymize: Field[]) {
+    let anonymizedDocument = { ...document };
 
-    for (const key in document) {
-      if (!document.hasOwnProperty(key)) continue;
-
-      if (fieldsToAnonymize.includes(key.toLowerCase())) {
-        if (typeof document[key] === 'object') {
-          if (Array.isArray(document[key]) && document[key].length > 0) {
-            anonymizedDocument[key] = document[key].map((item: any) =>
-              this.anonymizeDocument(item, fieldsToAnonymize, keysToAnonymize),
-            );
-            continue;
-          }
-
-          anonymizedDocument[key] = this.anonymizeDocument(
-            document[key],
-            fieldsToAnonymize,
-            keysToAnonymize,
-          );
-          continue;
-        }
-
-        anonymizedDocument[key] = this.anonymizeValue(
-          key.toLowerCase(),
-          keysToAnonymize.find((item) => item.field === key.toLowerCase())
-            ?.replacement,
-        );
-      } else {
-        anonymizedDocument[key] = document[key];
-      }
+    for (const field of keysToAnonymize) {
+      set(
+        anonymizedDocument,
+        field.field,
+        this.anonymizeValue(field.field, field.replacement),
+      );
     }
+
     return anonymizedDocument;
   }
 
-  private anonymizeValue(key: string, replacement: string | null) {
+  private anonymizeValue(key: string, replacement: string | undefined | null) {
     if (replacement) {
       return this.applyReplacement(replacement);
     }

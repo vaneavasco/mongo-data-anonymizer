@@ -77,7 +77,7 @@ export async function main() {
       while (await cursor?.hasNext()) {
         const batch = await getBatch(cursor, config.batchSize);
         const anonymizedBatch = !copyNonAnonymized
-          ? anonymizer.anonymizeBatch(batch, collectionName, config.fieldList)
+          ? anonymizer.anonymizeBatch(batch, config.fieldList)
           : batch;
         await db.replaceAnonymizedBatch(collectionName, anonymizedBatch);
       }
