@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "ts-node src/main.ts",
+    "anonymize": "npm run run:dev -- --database 'mongodb://localhost:27017/test' --fieldList 'toCustomer.name,toCustomer.phone,toCustomer.email' --collectionList 'stop' --batchSize 500",
     "build": "tsc",
     "test": "jest",
     "lint": "eslint 'src/**/*.{js,ts}'",
