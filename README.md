@@ -24,8 +24,7 @@ In this example, the `email` and `password` fields in the `users` and `admins` c
 
 Here are the available options:
 
-- `--sourceUri`: The MongoDB URI of the source database.
-- `--targetUri`: The MongoDB URI of the target database.
+- `--database`: The MongoDB URI of the source database.
 - `--fieldList`: A comma-separated list of fields to anonymize. You can also use the `+` or `-` modifiers to add or remove fields from the default list respectively. For example, `+age` will add `age` to the default fields, and `-email` will remove `email` from the default fields. The default fields are: `email`, `name`, `description`, `address`, `city`, `country`, `phone`, `comment`, `birthdate`, `firstname`, `lastname`, `fullname`.
 - `--collectionList`: (Optional) A comma-separated list of collections to anonymize. If not provided, all collections will be anonymized.
 - `--ignoreCollections`: (Optional) A comma-separated list of collections to ignore during the anonymization process.
