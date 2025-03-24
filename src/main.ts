@@ -78,7 +78,7 @@ export async function main() {
         const anonymizedBatch = !copyNonAnonymized
           ? anonymizer.anonymizeBatch(batch, collectionName, config.fieldList)
           : batch;
-        await targetDb.insertAnonymizedBatch(collectionName, anonymizedBatch);
+        await sourceDb.replaceAnonymizedBatch(collectionName, anonymizedBatch);
       }
     }
 

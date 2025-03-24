@@ -7,10 +7,7 @@ export class Database {
   private client: MongoClient | null = null;
   private db: Db | null = null;
 
-  constructor(
-    private uri: string,
-    private name: string,
-  ) {}
+  constructor(private uri: string, private name: string) {}
 
   async connect() {
     try {
@@ -40,6 +37,12 @@ export class Database {
 
   getCursor(collectionName: string) {
     return this.db ? this.db.collection(collectionName).find() : null;
+  }
+
+  async replaceAnonymizedBatch(collectionName: string, anonymizedBatch: any[]) {
+    if (this.db) {
+      await this.db.collection(collectionName).updateMany(anonymizedBatch);
+    }
   }
 
   async insertAnonymizedBatch(collectionName: string, anonymizedBatch: any[]) {
