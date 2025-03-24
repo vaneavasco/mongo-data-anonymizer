@@ -35,8 +35,17 @@ export class Database {
     return collections ? collections.map((item) => item.name) : [];
   }
 
-  getCursor(collectionName: string) {
-    return this.db ? this.db.collection(collectionName).find() : null;
+  getCursor(collectionName: string, olderThanDays: number) {
+    if (!this.db) {
+      return null;
+    }
+
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
+
+    return this.db.collection(collectionName).find({
+      updated_at: { $lt: cutoffDate },
+    });
   }
 
   async replaceAnonymizedBatch(collectionName: string, anonymizedBatch: any[]) {

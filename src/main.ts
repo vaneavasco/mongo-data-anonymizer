@@ -6,6 +6,7 @@ const log = require('bunyan').createLogger({ name: 'Main' });
 
 interface Config {
   database: string;
+  olderThan: number; // in days
   fieldList: string[];
   ignoreCollections: string[];
   collectionList: string[];
@@ -100,6 +101,7 @@ function parseArgs(argv: string[]): Config {
   const { hideBin } = require('yargs/helpers');
   const args = yargs(hideBin(argv))
     .option('database', { type: 'string', demandOption: true })
+    .option('olderThan', { type: 'number', default: 14 })
     .option('fieldList', {
       type: 'string',
       demandOption: true,
@@ -112,6 +114,7 @@ function parseArgs(argv: string[]): Config {
 
   return {
     database: args.database,
+    olderThan: args.olderThan,
     fieldList: getFieldList(args.fieldList, defaultFields),
     ignoreCollections: args.ignoreCollections?.split(',') || [],
     collectionList: args.collectionList?.split(',') || [],
