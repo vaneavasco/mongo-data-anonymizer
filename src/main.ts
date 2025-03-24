@@ -5,7 +5,7 @@ import { getFieldList } from './utils/field-utils';
 const log = require('bunyan').createLogger({ name: 'Main' });
 
 interface Config {
-  sourceUri: string;
+  database: string;
   fieldList: string[];
   ignoreCollections: string[];
   collectionList: string[];
@@ -31,7 +31,7 @@ const defaultFields = [
 export async function main() {
   const config: Config = parseArgs(process.argv);
 
-  const db = new Database(config.sourceUri, 'source');
+  const db = new Database(config.database, 'source');
   const anonymizer = new Anonymize();
 
   try {
@@ -71,6 +71,7 @@ export async function main() {
       } else {
         log.info(`Copying collection ${collectionName} without anonymization.`);
       }
+
       const cursor = db.getCursor(collectionName);
 
       while (await cursor?.hasNext()) {
@@ -98,7 +99,7 @@ function parseArgs(argv: string[]): Config {
   const yargs = require('yargs/yargs');
   const { hideBin } = require('yargs/helpers');
   const args = yargs(hideBin(argv))
-    .option('sourceUri', { type: 'string', demandOption: true })
+    .option('database', { type: 'string', demandOption: true })
     .option('fieldList', {
       type: 'string',
       demandOption: true,
@@ -110,7 +111,7 @@ function parseArgs(argv: string[]): Config {
     .option('copyNonAnonymized', { type: 'boolean', default: false }).argv;
 
   return {
-    sourceUri: args.sourceUri,
+    database: args.database,
     fieldList: getFieldList(args.fieldList, defaultFields),
     ignoreCollections: args.ignoreCollections?.split(',') || [],
     collectionList: args.collectionList?.split(',') || [],

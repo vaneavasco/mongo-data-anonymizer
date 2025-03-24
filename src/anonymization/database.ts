@@ -40,9 +40,18 @@ export class Database {
   }
 
   async replaceAnonymizedBatch(collectionName: string, anonymizedBatch: any[]) {
-    if (this.db) {
-      await this.db.collection(collectionName).updateMany(anonymizedBatch);
+    if (!this.db) {
+      return;
     }
+
+    const bulkOps = anonymizedBatch.map((item) => ({
+      updateOne: {
+        filter: { _id: item._id },
+        update: { $set: item },
+      },
+    }));
+
+    await this.db.collection(collectionName).bulkWrite(bulkOps);
   }
 
   async insertAnonymizedBatch(collectionName: string, anonymizedBatch: any[]) {
