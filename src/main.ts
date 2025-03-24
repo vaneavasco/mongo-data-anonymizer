@@ -31,13 +31,13 @@ const defaultFields = [
 export async function main() {
   const config: Config = parseArgs(process.argv);
 
-  const sourceDb = new Database(config.sourceUri, 'source');
+  const db = new Database(config.sourceUri, 'source');
   const anonymizer = new Anonymize();
 
   try {
-    await sourceDb.connect();
+    await db.connect();
 
-    const collections = await sourceDb.getCollections();
+    const collections = await db.getCollections();
 
     for (const collectionName of collections) {
       const copyNonAnonymized =
@@ -71,14 +71,14 @@ export async function main() {
       } else {
         log.info(`Copying collection ${collectionName} without anonymization.`);
       }
-      const cursor = sourceDb.getCursor(collectionName);
+      const cursor = db.getCursor(collectionName);
 
       while (await cursor?.hasNext()) {
         const batch = await getBatch(cursor, config.batchSize);
         const anonymizedBatch = !copyNonAnonymized
           ? anonymizer.anonymizeBatch(batch, collectionName, config.fieldList)
           : batch;
-        await sourceDb.replaceAnonymizedBatch(collectionName, anonymizedBatch);
+        await db.replaceAnonymizedBatch(collectionName, anonymizedBatch);
       }
     }
 
@@ -90,7 +90,7 @@ export async function main() {
       }`,
     );
   } finally {
-    await sourceDb.close();
+    await db.close();
   }
 }
 
