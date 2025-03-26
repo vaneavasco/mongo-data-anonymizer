@@ -1,36 +1,15 @@
+import { config as loadEnvConfig } from 'dotenv';
+
 import { Database } from './anonymization/database';
 import { Anonymize } from './anonymization/anonymize';
-import { getFieldList } from './utils/field-utils';
+import { parseArgs } from './config';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const log = require('bunyan').createLogger({ name: 'Main' });
-
-interface Config {
-  database: string;
-  olderThan: number; // in days
-  fieldList: string[];
-  ignoreCollections: string[];
-  collectionList: string[];
-  batchSize: number;
-  copyNonAnonymized: boolean;
-}
-
-const defaultFields = [
-  'email',
-  'name',
-  'description',
-  'address',
-  'city',
-  'country',
-  'phone',
-  'comment',
-  'birthdate',
-  'firstname',
-  'lastname',
-  'fullname',
-];
+loadEnvConfig();
 
 export async function main() {
-  const config: Config = parseArgs(process.argv);
+  const config = parseArgs(process.argv);
 
   const db = new Database(config.database, 'source');
   const anonymizer = new Anonymize();
@@ -94,33 +73,6 @@ export async function main() {
   } finally {
     await db.close();
   }
-}
-
-function parseArgs(argv: string[]): Config {
-  const yargs = require('yargs/yargs');
-  const { hideBin } = require('yargs/helpers');
-  const args = yargs(hideBin(argv))
-    .option('database', { type: 'string', demandOption: true })
-    .option('olderThan', { type: 'number', default: 14 })
-    .option('fieldList', {
-      type: 'string',
-      demandOption: true,
-      default: defaultFields.join(','),
-    })
-    .option('collectionList', { type: 'string' })
-    .option('ignoreCollections', { type: 'string' })
-    .option('batchSize', { type: 'number', default: 1000 })
-    .option('copyNonAnonymized', { type: 'boolean', default: false }).argv;
-
-  return {
-    database: args.database,
-    olderThan: args.olderThan,
-    fieldList: getFieldList(args.fieldList, defaultFields),
-    ignoreCollections: args.ignoreCollections?.split(',') || [],
-    collectionList: args.collectionList?.split(',') || [],
-    batchSize: args.batchSize,
-    copyNonAnonymized: args.copyNonAnonymized,
-  };
 }
 
 async function getBatch(cursor: any, batchSize: number) {
