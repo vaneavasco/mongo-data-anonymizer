@@ -1,4 +1,5 @@
 import { MongoClient, Db } from 'mongodb';
+import { decode } from 'node:querystring';
 import * as bunyan from 'bunyan';
 
 const log = bunyan.createLogger({ name: 'DatabaseHandler' });
@@ -6,13 +7,35 @@ const log = bunyan.createLogger({ name: 'DatabaseHandler' });
 export class Database {
   private client: MongoClient | null = null;
   private db: Db | null = null;
+  private options: Record<string, string | number>;
 
-  constructor(private uri: string, private name: string) {}
+  constructor(private uri: string, private name: string) {
+    const [dbUri, _options] = uri.split('?');
+
+    let options = {};
+    try {
+      options = decode(_options);
+      options = { ...options };
+      // @ts-expect-error loadBalanced should be false either way
+      delete options['loadBalanced'];
+    } catch {
+      log.error('Could not decode options');
+    }
+
+    this.name = name;
+    this.options = options;
+    this.uri = dbUri;
+  }
 
   async connect() {
     try {
-      log.info(`Connecting to ${this.name} database...`);
-      this.client = new MongoClient(this.uri);
+      log.info(
+        `Connecting to ${this.name} database with options ${JSON.stringify(
+          this.options,
+        )}`,
+      );
+
+      this.client = new MongoClient(this.uri, this.options);
       await this.client.connect();
       this.db = this.client.db();
       log.info(`Successfully connected to ${this.name} database`);
