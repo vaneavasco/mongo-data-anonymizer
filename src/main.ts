@@ -73,7 +73,7 @@ export async function main() {
         log.info(`Copying collection ${collectionName} without anonymization.`);
       }
 
-      const cursor = db.getCursor(collectionName);
+      const cursor = db.getCursor(collectionName, 14);
 
       while (await cursor?.hasNext()) {
         const batch = await getBatch(cursor, config.batchSize);
