@@ -9,7 +9,7 @@ const log = require('bunyan').createLogger({ name: 'Main' });
 loadEnvConfig();
 
 export async function main() {
-  const config = parseArgs(process.argv);
+  const config = parseArgs();
 
   const db = new Database(config.database, 'source');
   const anonymizer = new Anonymize();

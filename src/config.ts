@@ -1,44 +1,63 @@
 import { config as loadEnvConfig } from 'dotenv';
 import { z } from 'zod';
-import { getFieldList } from './utils/field-utils';
+import yargs from 'yargs';
 
 loadEnvConfig();
-interface Config {
-  database: string;
-  olderThan: number; // in days
-  fieldList: string[];
-  ignoreCollections: string[];
-  collectionList: string[];
-  batchSize: number;
-  copyNonAnonymized: boolean;
-}
+export const ConfigSchema = z.object({
+  database: z.string().min(1, { message: 'Database name cannot be empty' }),
+  olderThan: z
+    .number()
+    .int()
+    .min(0, { message: 'Older than (in days) must be a non-negative integer' }),
+  fieldList: z.string().transform((fields) => fields.split(',')),
+  ignoreCollections: z.string().transform((fields) => fields.split(',')),
+  collectionList: z.string().transform((fields) => fields.split(',')),
+  batchSize: z
+    .number()
+    .int()
+    .positive({ message: 'Batch size must be a positive integer' }),
+  copyNonAnonymized: z.boolean(),
+});
 
-export function parseArgs(argv: string[]): Config {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const yargs = require('yargs/yargs');
+export type Config = z.infer<typeof ConfigSchema>;
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { hideBin } = require('yargs/helpers');
+const yargOptions = {
+  database: { type: 'string', demandOption: false },
+  olderThan: { type: 'number', default: 14 },
+  fieldList: { type: 'string', demandOption: false },
+  collectionList: { type: 'string' },
+  ignoreCollections: { type: 'string' },
+  batchSize: { type: 'number', default: 1000 },
+  copyNonAnonymized: { type: 'boolean', default: false },
+};
 
-  const args = yargs(hideBin(argv))
-    .option('database', { type: 'string', demandOption: true })
-    .option('olderThan', { type: 'number', default: 14 })
-    .option('fieldList', {
-      type: 'string',
-      demandOption: true,
-    })
-    .option('collectionList', { type: 'string' })
-    .option('ignoreCollections', { type: 'string' })
-    .option('batchSize', { type: 'number', default: 1000 })
-    .option('copyNonAnonymized', { type: 'boolean', default: false }).argv;
+const validKeys: (keyof typeof yargOptions)[] = [
+  'database',
+  'olderThan',
+  'fieldList',
+  'ignoreCollections',
+  'collectionList',
+  'batchSize',
+  'copyNonAnonymized',
+];
 
-  return {
-    database: args.database,
-    olderThan: args.olderThan,
-    fieldList: getFieldList(args.fieldList, []),
-    ignoreCollections: args.ignoreCollections?.split(',') || [],
-    collectionList: args.collectionList?.split(',') || [],
-    batchSize: args.batchSize,
-    copyNonAnonymized: args.copyNonAnonymized,
-  };
+export function parseArgs(): Required<Config> {
+  // @ts-expect-error lol
+  const args = yargs(process.argv.slice(2)).options(yargOptions).parse();
+
+  // @ts-expect-error lol
+  const envArgs = yargs(process.env).options(yargOptions).parse();
+
+  // merge the args
+  // @ts-expect-error lol
+  let config = Object.assign({}, envArgs, args) as Config;
+
+  config = validKeys.reduce((prev, curr) => {
+    // @ts-expect-error lol
+    prev[curr] = config[curr];
+    return prev;
+  }, {} as Config);
+
+  config = ConfigSchema.parse(config);
+  return config;
 }
