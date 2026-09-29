@@ -1,3 +1,4 @@
+import { Faker, base, en } from '@faker-js/faker';
 import { describe, expect, it } from 'vitest';
 import { sfc32Randomizer } from '../../src/anonymization/randomizer.ts';
 
@@ -35,5 +36,33 @@ describe('sfc32Randomizer', () => {
       expect(count).toBeGreaterThan(9_000);
       expect(count).toBeLessThan(11_000);
     }
+  });
+
+  it('re-seeds much faster than the default Mersenne Twister of faker', () => {
+    // The anonymizer re-seeds for every value, so this is what makes it fast.
+    const seeds = Array.from({ length: 20_000 }, (_, i) => [
+      i,
+      i * 7,
+      i * 13,
+      i * 31,
+    ]);
+    const time = (faker: Faker) => {
+      const started = performance.now();
+      for (const seed of seeds) {
+        faker.seed(seed);
+        faker.number.int();
+      }
+      return performance.now() - started;
+    };
+
+    const fast = new Faker({
+      locale: [en, base],
+      randomizer: sfc32Randomizer(),
+    });
+    const slow = new Faker({ locale: [en, base] });
+    time(fast);
+    time(slow);
+
+    expect(time(fast) * 3).toBeLessThan(time(slow));
   });
 });

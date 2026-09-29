@@ -349,7 +349,7 @@ describe('Anonymizer', () => {
       });
     });
 
-    it('anonymizes a typical user document in well under 100 µs', () => {
+    it('anonymizes a typical user document in well under a millisecond', () => {
       const anonymizer = new Anonymizer({ secret: 's' });
       const fields = rules(
         'email',
@@ -378,7 +378,9 @@ describe('Anonymizer', () => {
       const microsPerDocument =
         ((performance.now() - started) * 1000) / documents.length;
 
-      expect(microsPerDocument).toBeLessThan(100);
+      // Around 60 µs on a laptop; generous so slower CI machines pass. The
+      // machine-independent speed check is in randomizer.test.ts.
+      expect(microsPerDocument).toBeLessThan(1_000);
     });
 
     it('gives different results with a different secret', () => {
