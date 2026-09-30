@@ -993,6 +993,28 @@ describe('Anonymizer', () => {
       expect([...found]).toEqual([]);
     });
 
+    it('flags numeric coordinates, but not other numbers', () => {
+      const found = new Anonymizer().findUnmatchedPersonalKeys(
+        {
+          lat: 46.77,
+          lng: 23.59,
+          home: { latitude: 46.77, longitude: 23.59 },
+          lastSeenLat: 46.77,
+          phoneCount: 2,
+          age: 34,
+        },
+        rules(),
+      );
+
+      expect([...found].sort()).toEqual([
+        'home.latitude',
+        'home.longitude',
+        'lastSeenLat',
+        'lat',
+        'lng',
+      ]);
+    });
+
     it('lists personal-looking keys that no rule covers, with their paths', () => {
       const found = new Anonymizer().findUnmatchedPersonalKeys(
         {
