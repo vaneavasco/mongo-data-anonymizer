@@ -42,7 +42,7 @@ To see what would happen without writing anything, run it first with `--dryRun`.
 
 - whether the collection would be anonymized, copied or skipped;
 - roughly how many documents it has;
-- which keys match no rule but look like personal data by name, such as `SSNNumber` or `guestPhoneList`. It checks the first 1000 documents of each collection (`--sampleSize`, 0 for all), so rare keys can be missed, and it ignores boolean and numeric values. Those keys would be written unchanged, so add them to `--fieldList` if needed. With `--no-scrubEmails`, keys whose text contains an email address are listed too.
+- which keys match no rule but look like personal data by name, such as `SSNNumber` or `guestPhoneList`. It checks the first 1000 documents of each collection (`--sampleSize`, 0 for all), so rare keys can be missed, and it ignores boolean and numeric values, except coordinates such as `lat` or `homeLongitude`. Those keys would be written unchanged, so add them to `--fieldList` if needed. With `--no-scrubEmails`, keys whose text contains an email address are listed too.
 
 A dry run also runs the [safety checks](#safety-checks), except the probe collection, which would be a write. So it fails too if, for example, the target already has the collections and `--dropTarget` isn't set.
 
@@ -108,7 +108,7 @@ Without a replacement, the fake value is chosen from the field name: emails, fir
 
 ### Default fields
 
-The defaults are chosen so that a first run on a typical application database is already safe. The patterns end with the personal word, so `orderEmail` and `mainGuest.phoneNo` are covered, while `emailTemplate`, `emailVerified` and `productName` are not.
+The defaults cover the fields that most applications use for personal data, but they can't know your schema: anything they don't match, such as free text in `message` or `body`, national ID numbers or coordinates, is copied unchanged. Choosing the fields is up to you, so follow [Before using on production data](#before-using-on-production-data) before trusting the output. The patterns end with the personal word, so `orderEmail` and `mainGuest.phoneNo` are covered, while `emailTemplate`, `emailVerified` and `productName` are not.
 
 | Kind                        | Rules                                                                                                                                                         |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |

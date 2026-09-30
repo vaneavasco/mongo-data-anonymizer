@@ -374,6 +374,13 @@ function looksPersonal(key: string): boolean {
   );
 }
 
+const COORDINATE_WORDS = new Set(['lat', 'lng', 'latitude', 'longitude']);
+
+/** The key holds a coordinate (`lat`, `homeLatitude`), whose value is a number. */
+function isCoordinateKey(key: string): boolean {
+  return COORDINATE_WORDS.has(words(key).at(-1) ?? '');
+}
+
 /** Replacement that keeps a field unchanged, e.g. `images.name:keep` to override a global `name` rule. */
 export const KEEP = 'keep';
 
@@ -508,8 +515,11 @@ export class Anonymizer {
           if (rule.replacement === KEEP) visit(child, childPath, NO_RULES);
           continue;
         }
-        // Booleans and numbers (`sendEmail: true`) are flags or counts, not personal data.
-        const isFlag = typeof child === 'boolean' || typeof child === 'number';
+        // Booleans and numbers (`sendEmail: true`) are flags or counts, not
+        // personal data; coordinates (`lat: 46.77`) are the exception.
+        const isFlag =
+          typeof child === 'boolean' ||
+          (typeof child === 'number' && !isCoordinateKey(key));
         if (
           key !== '_id' &&
           !isFlag &&
