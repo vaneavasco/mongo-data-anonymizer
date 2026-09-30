@@ -1,6 +1,6 @@
 {
   "name": "mongo-data-anonymizer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Anonymize specified fields in MongoDB collections and copy them to a target database.",
   "type": "module",
   "main": "dist/index.js",
