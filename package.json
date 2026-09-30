@@ -61,6 +61,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vaneavasco/mongo-data-anonymizer.git"
+    "url": "git+https://github.com/vaneavasco/mongo-data-anonymizer.git"
   }
 }
